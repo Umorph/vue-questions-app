@@ -5,10 +5,15 @@
 			<button class="main-screen__filter-button">All questions</button>
 		</div>
 		<ul class="main-screen__questions-list">
-			<app-question-card class="main-screen__question-card"></app-question-card>
-			<app-question-card class="main-screen__question-card"></app-question-card>
+			<app-question-card
+				class="main-screen__question-card"
+				v-for="question in questionsArray"
+				:questions="question"
+				:key="question.id"
+			></app-question-card>
 		</ul>
-		<app-questions-form class="main-screen__question-form"></app-questions-form>
+
+		<app-questions-form class="main-screen__question-form" v-if="openedFolder"></app-questions-form>
 	</section>
 </template>
 
@@ -17,6 +22,18 @@
 	import AppQuestionsForm from "./AppQuestionsForm";
 
 	export default {
+		computed: {
+			questionsData() {
+				return this.$store.state.questionsData
+			},
+			openedFolder() {
+				return this.$store.state.openedFolder
+			},
+			questionsArray() {
+				return this.questionsData[this.openedFolder]
+			}
+		},
+		methods: {},
 		components: {
 			AppQuestionCard,
 			AppQuestionsForm,
@@ -128,6 +145,7 @@
 		align-items: stretch;
 
 		list-style: none;
+		overflow-y: scroll;
 	}
 
 	.main-screen__question-card {

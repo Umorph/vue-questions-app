@@ -1,10 +1,15 @@
 <template>
-	<form class="question-form" action="#">
+	<form class="question-form" action="#" @submit.prevent="addQuestion()">
 		<div class="question-form__input-wrapper">
-			<label class="question-form__label" for="question-textarea">Добавьте вопрос</label>
-			<textarea class="question-form__textarea" name="question" id="question-textarea"></textarea>
+			<label class="question-form__label" for="question-textarea">Type a question</label>
+			<textarea class="question-form__textarea"
+								name="question"
+								id="question-textarea"
+								v-model="newQuestion"
+								v-on:keydown.enter.prevent="addQuestion()"
+			></textarea>
 		</div>
-		<button class="question-form__submit-button">
+		<button class="question-form__submit-button" type="submit">
 			<span class="visually-hidden">Отправить</span>
 		</button>
 	</form>
@@ -12,7 +17,35 @@
 
 <script>
 	export default {
-
+		data() {
+			return {
+				newQuestion: '',
+			}
+		},
+		computed: {
+			questionsData() {
+				return this.$store.state.questionsData
+			},
+			openedFolder() {
+				return this.$store.state.openedFolder
+			},
+			questionsArray() {
+				return this.questionsData[this.openedFolder]
+			}
+		},
+		methods: {
+			addQuestion() {
+				if (this.newQuestion.length !== 0) {
+					let result = {
+						number: 'Q1234',
+						text: this.newQuestion.trim(),
+						closed: false
+					}
+					this.$store.commit('addQuestion', result)
+					this.newQuestion = ''
+				}
+			}
+		}
 	}
 </script>
 

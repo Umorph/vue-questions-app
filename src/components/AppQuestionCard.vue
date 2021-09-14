@@ -1,22 +1,41 @@
 <template>
 	<li class="question-card">
-		<div class="question-card__info">
-			<span class="question-card__question-number">Q2718</span>
-			<span class="question-card__question-time">16h</span>
+		<div class="question-card__info"
+				 :class="{'question-card__info--closed': questions.closed}"
+		>
+			<span class="question-card__question-number"
+						:class="{'question-card__question-number--closed': questions.closed}"
+			>
+				{{ questions.number }}
+			</span>
+			<span class="question-card__question-time"
+						v-if="!questions.closed"
+			>
+				16h
+			</span>
+			<span class="question-card__message-status" v-else>Closed</span>
 		</div>
 		<div class="question-card__question-inner">
-			<strong class="question-card__text">Hello, what is the delivery time?</strong>
+			<strong class="question-card__text">{{ questions.text }}</strong>
 			<div class="question-card__meta">
 				<span class="question-card__author">Guest</span>
 				<span class="question-card__date">4:20 am</span>
 				<div class="question-card__controls">
-					<button class="question-card__button question-card__button--delete">
+					<button class="question-card__button question-card__button--delete"
+									@click="deleteQuestion()"
+					>
 						<span class="visually-hidden">Удалить вопрос</span>
 					</button>
-					<button class="question-card__button question-card__button--close">
+					<button class="question-card__button question-card__button--close"
+									v-if="!questions.closed"
+									@click="closeQuestion()"
+					>
 						<span class="visually-hidden">Закрыть вопрос</span>
 					</button>
-					<button class="question-card__button question-card__button--return">
+					<button class="question-card__button question-card__button--return"
+									v-else
+									@click="openQuestion()"
+					>
 						<span class="visually-hidden">Открыть вопрос</span>
 					</button>
 				</div>
@@ -27,12 +46,44 @@
 
 <script>
 	export default {
-
+		props: ['questions'],
+		computed: {
+			questionsData() {
+				return this.$store.state.questionsData
+			},
+			openedFolder() {
+				return this.$store.state.openedFolder
+			},
+			questionsArray() {
+				return this.questionsData[this.openedFolder]
+			}
+		},
+		methods: {
+			deleteQuestion() {
+				this.questionsArray.forEach((item, index) => {
+					if (item === this.questions) {
+						this.$store.commit('deleteQuestion', index)
+					}
+				})
+			},
+			closeQuestion() {
+				this.questionsData[this.openedFolder].forEach((item, index) => {
+						if (item === this.questions) {
+							this.$store.commit('closeQuestion', index)
+						}
+				})
+			},
+			openQuestion() {
+				this.questionsData[this.openedFolder].forEach((item, index) => {
+					if (item === this.questions) {
+						// item.closed = false
+						this.$store.commit('openQuestion', index)
+					}
+				})
+			},
+		}
 	}
 </script>
-
-
-
 
 <style lang="scss">
 	.question-card {
@@ -79,6 +130,14 @@
 
 			z-index: 0;
 		}
+
+		&--closed {
+			background-color: #5BBC73;
+
+			&::after {
+				content: none;
+			}
+		}
 	}
 
 	.question-card__question-number {
@@ -101,6 +160,10 @@
 		border-radius: 5px;
 
 		z-index: 1;
+
+		&--closed {
+			background-color: #5BBC73;
+		}
 	}
 
 	.question-card__question-time {
@@ -113,6 +176,19 @@
 		font-size: 15px;
 		line-height: 15px;
 		color: #4a4a4a;
+		text-align: center;
+	}
+
+	.question-card__message-status {
+		margin: 0;
+		padding: 0;
+
+		font-family: inherit;
+		font-weight: 700;
+		font-style: normal;
+		font-size: 13px;
+		line-height: 15px;
+		color: #fff;
 		text-align: center;
 	}
 
